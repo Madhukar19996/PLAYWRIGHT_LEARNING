@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Playwright Day 6 — Topper Notes</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Kalam:wght@300;400;700&family=Architects+Daughter&display=swap');
+
+:root{
+  --paper:#FBF7EC;
+  --rule:#CFE0EE;
+  --margin:#F2A9A9;
+  --ink-navy:#1F3A5F;
+  --ink-teal:#0E7C7B;
+  --ink-coral:#D9591C;
+  --ink-purple:#7B4B94;
+  --ink-green:#2E7D32;
+  --ink-red:#C0392B;
+  --ink-mustard:#B8860B;
+  --hi-yellow:#FFF3A0;
+  --hi-green:#D4F5D0;
+  --hi-pink:#FFE0EC;
+  --hi-blue:#DCEEFB;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  background:#E7E1D3;
+  font-family:'Kalam', cursive;
+  color:var(--ink-navy);
+  padding:24px 0 60px;
+}
+
+.sheet{
+  max-width:1000px;
+  margin:0 auto 28px;
+  background:
+    repeating-linear-gradient(var(--paper) 0px, var(--paper) 33px, var(--rule) 34px),
+    var(--paper);
+  background-position: 0 6px;
+  position:relative;
+  border-radius:6px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18), 0 2px 4px rgba(0,0,0,0.1);
+  padding:34px 40px 34px 64px;
+  border-left: 3px solid var(--margin);
+}
+.sheet::before{
+  content:"";
+  position:absolute; left:46px; top:0; bottom:0; width:1px;
+  background:var(--margin); opacity:0.55;
+}
+.sheet::after{
+  content:"";
+  position:absolute; inset:0;
+  border-radius:6px;
+  box-shadow: inset 0 0 60px rgba(120,100,60,0.06);
+  pointer-events:none;
+}
+/* punch holes */
+.holes span{
+  position:absolute; left:16px; width:12px; height:12px; border-radius:50%;
+  background:#E7E1D3; box-shadow: inset 0 0 3px rgba(0,0,0,0.35);
+}
+
+h1,h2,h3{font-family:'Caveat', cursive; margin:0 0 6px;}
+
+.cover{
+  text-align:center;
+  padding-top:10px;
+}
+.cover .tag{
+  display:inline-block; font-family:'Architects Daughter', cursive;
+  font-size:14px; color:var(--ink-purple); background:var(--hi-pink);
+  padding:4px 14px; border-radius:14px; transform:rotate(-2deg);
+  border:1.5px dashed var(--ink-purple);
+}
+.cover h1{
+  font-size:64px; color:var(--ink-navy); margin:10px 0 0; line-height:1;
+  text-shadow: 2px 2px 0 var(--hi-yellow);
+}
+.cover .sub{
+  font-size:26px; color:var(--ink-teal); font-family:'Caveat',cursive; margin-top:2px;
+}
+.cover .underline{
+  width:340px; height:10px; margin:8px auto 18px; position:relative;
+}
+.cover .underline svg{width:100%;height:100%;}
+.badgerow{display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:10px;}
+.badge{
+  font-family:'Architects Daughter',cursive; font-size:13px;
+  border:2px solid var(--ink-coral); color:var(--ink-coral);
+  padding:5px 12px; border-radius:8px; background:#fff;
+  transform:rotate(-1.5deg);
+}
+.badge:nth-child(2){border-color:var(--ink-teal); color:var(--ink-teal); transform:rotate(1.5deg);}
+.badge:nth-child(3){border-color:var(--ink-purple); color:var(--ink-purple); transform:rotate(-1deg);}
+.badge:nth-child(4){border-color:var(--ink-green); color:var(--ink-green); transform:rotate(1deg);}
+
+.section-title{
+  display:flex; align-items:center; gap:10px; margin:6px 0 16px;
+}
+.section-title .num{
+  font-family:'Caveat',cursive; font-weight:700; font-size:30px;
+  background:var(--ink-navy); color:var(--paper);
+  width:42px;height:42px;border-radius:50% 50% 50% 6px;
+  display:flex;align-items:center;justify-content:center;
+  transform:rotate(-4deg);
+  box-shadow:2px 2px 0 rgba(0,0,0,0.15);
+}
+.section-title h2{font-size:34px; color:var(--ink-navy);}
+.section-title .squiggle{flex:1; height:14px;}
+.section-title .squiggle svg{width:100%; height:100%;}
+
+.pill{
+  display:inline-block; font-family:'Architects Daughter',cursive; font-size:12px;
+  padding:2px 10px; border-radius:10px; margin-left:6px; vertical-align:middle;
+}
+.pill.new{background:var(--hi-green); color:var(--ink-green); border:1.5px solid var(--ink-green);}
+.pill.imp{background:var(--hi-yellow); color:var(--ink-mustard); border:1.5px solid var(--ink-mustard);}
+.pill.trick{background:var(--hi-pink); color:var(--ink-purple); border:1.5px solid var(--ink-purple);}
+
+p, li{font-size:17px; line-height:1.55;}
+
+.hl{background:var(--hi-yellow); padding:0 4px; border-radius:3px;}
+.hl-green{background:var(--hi-green); padding:0 4px; border-radius:3px;}
+.hl-pink{background:var(--hi-pink); padding:0 4px; border-radius:3px;}
+.hl-blue{background:var(--hi-blue); padding:0 4px; border-radius:3px;}
+b.key{color:var(--ink-coral);}
+b.key2{color:var(--ink-teal);}
+
+/* boxes */
+.box{
+  border:2.5px solid var(--ink-navy); border-radius:10px;
+  padding:14px 18px; margin:14px 0; background:rgba(255,255,255,0.55);
+  position:relative;
+}
+.box.dashed{border-style:dashed;}
+.box-title{
+  font-family:'Caveat',cursive; font-size:22px; font-weight:700;
+  display:flex; align-items:center; gap:8px; margin-bottom:6px;
+}
+
+.trick{
+  border:2.5px dashed var(--ink-purple); background:var(--hi-pink);
+  border-radius:12px; padding:14px 18px; margin:16px 0;
+  transform:rotate(-0.4deg);
+}
+.trick .box-title{color:var(--ink-purple);}
+
+.remember{
+  border:2.5px solid var(--ink-red); background:#FFF0EE;
+  border-radius:12px; padding:14px 18px; margin:16px 0;
+}
+.remember .box-title{color:var(--ink-red);}
+
+.tipbox{
+  border:2.5px solid var(--ink-green); background:var(--hi-green);
+  border-radius:12px; padding:14px 18px; margin:16px 0;
+}
+.tipbox .box-title{color:var(--ink-green);}
+
+/* sticky note */
+.sticky{
+  background:var(--hi-yellow); border-radius:2px;
+  box-shadow: 3px 4px 8px rgba(0,0,0,0.2);
+  padding:12px 14px; font-family:'Architects Daughter',cursive; font-size:14px;
+  position:relative; transform:rotate(-3deg);
+  width:210px;
+}
+.sticky.blue{background:var(--hi-blue); transform:rotate(2deg);}
+.sticky.pink{background:var(--hi-pink); transform:rotate(-1.5deg);}
+.sticky::before{
+  content:""; position:absolute; top:-10px; left:40%;
+  width:36px; height:16px; background:rgba(200,200,200,0.55);
+  border:1px solid rgba(150,150,150,0.4);
+  transform:rotate(-4deg);
+}
+.stickyrow{display:flex; gap:22px; flex-wrap:wrap; margin:18px 0; justify-content:center;}
+
+/* code card */
+.code{
+  background:#132335; color:#E8F1FF; border-radius:10px;
+  font-family:'Courier New',monospace; font-size:13.5px; line-height:1.55;
+  padding:14px 18px; margin:12px 0; overflow-x:auto;
+  box-shadow:3px 3px 0 rgba(0,0,0,0.15);
+  border:2px solid var(--ink-navy);
+}
+.code .c1{color:#7FD9A0;} /* comment */
+.code .kw{color:#F98BAB;} /* keyword */
+.code .fn{color:#8FD3FF;}
+.code .st{color:#FFE08A;}
+
+/* tables */
+table{width:100%; border-collapse:collapse; margin:14px 0; font-size:15.5px;}
+th{
+  background:var(--ink-navy); color:var(--paper); font-family:'Caveat',cursive;
+  font-size:19px; padding:8px 10px; text-align:left; border:2px solid var(--ink-navy);
+}
+td{border:2px solid #C9BFA5; padding:8px 10px; background:rgba(255,255,255,0.5);}
+tr:nth-child(even) td{background:rgba(255,255,255,0.8);}
+td.center{text-align:center;}
+.check{color:var(--ink-green); font-weight:bold;}
+.cross{color:var(--ink-red); font-weight:bold;}
+
+/* two column */
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+@media(max-width:760px){.grid2{grid-template-columns:1fr;}}
+
+/* flow diagram */
+.flow{display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; margin:18px 0;}
+.flow .step{
+  border:2.5px solid var(--ink-navy); border-radius:12px; padding:10px 18px;
+  font-family:'Caveat',cursive; font-size:22px; background:#fff; text-align:center;
+  min-width:110px;
+}
+.flow .step.a{border-color:var(--ink-coral); color:var(--ink-coral);}
+.flow .step.b{border-color:var(--ink-teal); color:var(--ink-teal);}
+.flow .step.c{border-color:var(--ink-purple); color:var(--ink-purple);}
+.flow .arrow{font-size:26px; color:var(--ink-navy);}
+
+/* mindmap */
+.mindmap{position:relative; margin:20px auto; max-width:760px;}
+.mindmap svg{width:100%; height:auto; display:block;}
+
+.footer-tag{
+  text-align:center; font-family:'Caveat',cursive; font-size:20px;
+  color:var(--ink-navy); opacity:0.7; margin-top:6px;
+}
+
+.cornertape{
+  position:absolute; width:70px; height:26px; background:rgba(255,244,200,0.7);
+  border:1px solid rgba(200,180,120,0.5); top:-10px;
+}
+.tape-l{left:20px; transform:rotate(-8deg);}
+.tape-r{right:20px; transform:rotate(8deg);}
+
+.arrowlabel{font-family:'Architects Daughter',cursive; font-size:13px; color:var(--ink-coral);}
+
+ul.tick li{list-style:none; position:relative; padding-left:26px; margin-bottom:6px;}
+ul.tick li::before{content:"✓"; position:absolute; left:0; color:var(--ink-green); font-weight:bold; font-size:18px;}
+ul.cross-list li{list-style:none; position:relative; padding-left:26px; margin-bottom:6px;}
+ul.cross-list li::before{content:"✗"; position:absolute; left:0; color:var(--ink-red); font-weight:bold; font-size:18px;}
+
+.starlist li{list-style:none; position:relative; padding-left:22px; margin-bottom:6px;}
+.starlist li::before{content:"★"; position:absolute; left:0; color:var(--ink-mustard); font-size:14px; top:4px;}
+</style>
+</head>
+<body>
+
+<!-- ============ COVER SHEET ============ -->
+<div class="sheet cover">
+  <span class="tag">✎ Topper's Notes — Automation Series</span>
+  <h1>Playwright: Day 6</h1>
+  <div class="sub">Data Entry Form Validation — Locate • Act • Assert</div>
+  <div class="underline">
+    <svg viewBox="0 0 340 10"><path d="M2 6 Q90 -2 170 6 T338 6" stroke="#D9591C" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+  </div>
+  <div class="badgerow">
+    <span class="badge">📌 Locators</span>
+    <span class="badge">🖱 Actions</span>
+    <span class="badge">✅ Assertions</span>
+    <span class="badge">🧠 Exam Tricks Inside</span>
+  </div>
+  <p style="max-width:620px;margin:22px auto 0;font-size:16px;color:var(--ink-navy);opacity:0.85;">
+   From this page you'll master how to structure a Playwright test suite, validate page loads,
+   fill &amp; verify input fields, and handle radio buttons — with the <b class="key">one distinction</b>
+   that trips up 90% of learners: <span class="hl-pink"><b>toHaveValue</b> vs <b>toHaveText</b></span>.
+  </p>
+</div>
+
+<!-- ============ SECTION 1: FOUNDATIONS ============ -->
+<div class="sheet">
+  <div class="section-title">
+    <div class="num">1</div>
+    <h2>Foundations — Recap Day 5</h2>
+    <span class="squiggle"><svg viewBox="0 0 400 14"><path d="M0 8 q10 -8 20 0 t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0" stroke="#CFE0EE" stroke-width="3" fill="none"/></svg></span>
+  </div>
+
+  <p>Every automated test case is built on <b class="key">3 pillars</b>. Miss one, and the test isn't complete.</p>
+
+  <div class="flow">
+    <div class="step a">📍 LOCATE<br><small>find the element</small></div>
+    <div class="arrow">➜</div>
+    <div class="step b">🖱 ACT<br><small>fill / click / check</small></div>
+    <div class="arrow">➜</div>
+    <div class="step c">✅ ASSERT<br><small>validate result</small></div>
+  </div>
+
+  <div class="box-title" style="color:var(--ink-navy);">🔑 3 Ways to Locate Elements</div>
+  <table>
+    <tr><th>Method</th><th>Best For</th><th>Example</th></tr>
+    <tr><td><b class="key2">Built-in (Resilient) Locators</b></td><td>Role, Label, Placeholder, Text</td><td class="center">getByLabel, getByRole</td></tr>
+    <tr><td><b class="key2">XPath</b></td><td>Complex/nested DOM structures</td><td class="center">//input[@id='x']</td></tr>
+    <tr><td><b class="key2">CSS</b></td><td>Class/id based selection</td><td class="center">#fullName, .form-input</td></tr>
+  </table>
+
+  <div class="tipbox">
+    <div class="box-title">💡 Why "Resilient" Locators?</div>
+    They target how a <b>user</b> perceives the page (label, role, text) — not internal DOM structure —
+    so tests survive HTML/CSS refactors. <span class="hl-green">Prefer these first.</span>
+  </div>
+</div>
+
+<!-- ============ SECTION 2: TEST STRUCTURE ============ -->
+<div class="sheet">
+  <div class="section-title">
+    <div class="num">2</div>
+    <h2>Setting Up the Test Suite</h2>
+    <span class="squiggle"><svg viewBox="0 0 400 14"><path d="M0 8 q10 -8 20 0 t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0" stroke="#CFE0EE" stroke-width="3" fill="none"/></svg></span>
+  </div>
+
+  <p>A <b class="key">test suite</b> = group of related test cases (just like Sanity/Smoke/Regression grouping in manual testing).</p>
+
+  <div class="grid2">
+    <div>
+      <div class="box">
+        <div class="box-title" style="color:var(--ink-coral);">📘 describe() — the Suite</div>
+        <ul class="starlist">
+          <li>High-level container for related tests</li>
+          <li><b>Cannot</b> nest another describe() inside a test()</li>
+          <li>Can hold multiple test() blocks</li>
+        </ul>
+      </div>
+      <div class="box">
+        <div class="box-title" style="color:var(--ink-teal);">🪝 Hooks</div>
+        <ul class="starlist">
+          <li><b>beforeEach</b> — runs before every test</li>
+          <li>afterEach — runs after every test</li>
+          <li>beforeAll / afterAll — once per suite</li>
+        </ul>
+        <p style="margin-bottom:0;">Put <span class="hl">repeated setup</span> (open URL + verify loaded) inside <b>beforeEach</b> — DRY principle!</p>
+      </div>
+    </div>
+    <div class="code">
+<span class="c1">// Global constant — reused everywhere</span><br>
+<span class="kw">const</span> PAGE_URL = <span class="st">"https://.../autoplay.html"</span>;<br><br>
+test.<span class="fn">describe</span>(<span class="st">'Data Entry Form Validation'</span>, () =&gt; {<br>
+&nbsp;&nbsp;test.<span class="fn">beforeEach</span>(<span class="kw">async</span> ({ page }) =&gt; {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">await</span> page.<span class="fn">goto</span>(PAGE_URL);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">await</span> expect(page.getByText(<span class="st">'AutoPlay'</span>))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="fn">toBeVisible</span>();<br>
+&nbsp;&nbsp;});<br><br>
+&nbsp;&nbsp;<span class="c1">// individual test() blocks go here</span><br>
+});
+    </div>
+  </div>
+
+  <div class="remember">
+    <div class="box-title">⏸ page.waitForTimeout(ms)</div>
+    Hard pause — like <b>Thread.sleep()</b> in Java. Only for dev/visibility, <span class="hl">not a smart wait</span>.
+    Doesn't cause flakiness; simply pauses execution.
+  </div>
+</div>
+
+<!-- ============ SECTION 3: PAGE LOAD VALIDATION ============ -->
+<div class="sheet">
+  <div class="section-title">
+    <div class="num">3</div>
+    <h2>Test 1 — Page Load Validation <span class="pill imp">Exam Fav ⭐</span></h2>
+    <span class="squiggle"><svg viewBox="0 0 400 14"><path d="M0 8 q10 -8 20 0 t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0" stroke="#CFE0EE" stroke-width="3" fill="none"/></svg></span>
+  </div>
+
+  <div class="code">
+test(<span class="st">'Page load validation'</span>, <span class="kw">async</span> ({ page }) =&gt; {<br>
+&nbsp;&nbsp;<span class="kw">await</span> expect(page).<span class="fn">toHaveURL</span>(PAGE_URL);<br>
+&nbsp;&nbsp;<span class="kw">await</span> expect(page.getByText(<span class="st">'AutoPlay'</span>))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;.<span class="fn">toBeVisible</span>();<br>
+});
+  </div>
+
+  <div class="trick">
+    <div class="box-title">🎯 Exam Trick — Why TWO assertions?</div>
+    <p style="margin:4px 0;"><b>toHaveURL()</b> only proves the <b class="key">address bar</b> is correct — NOT that the page rendered!
+    A 404/500 page can still show the "correct" URL.</p>
+    <p style="margin:4px 0 0;">Always pair it with an <b class="key2">element-presence check</b>
+    (logo/heading text) → this is the real proof of successful load. <span class="hl-pink">Memory trick: "URL tells you WHERE, element tells you WHAT."</span></p>
+  </div>
+</div>
+
+<!-- ============ SECTION 4: LOCATOR STRATEGY ============ -->
+<div class="sheet">
+  <div class="section-title">
+    <div class="num">4</div>
+    <h2>Form Locator Strategy</h2>
+    <span class="squiggle"><svg viewBox="0 0 400 14"><path d="M0 8 q10 -8 20 0 t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0" stroke="#CFE0EE" stroke-width="3" fill="none"/></svg></span>
+  </div>
+
+  <table>
+    <tr><th>Method</th><th>Use Case</th><th>Priority</th></tr>
+    <tr><td>getByRole()</td><td>Actionable elements — buttons, links</td><td class="center">for actions</td></tr>
+    <tr><td><b class="key">getByLabel()</b></td><td><b>Form fields</b> (inputs, radios, checkboxes)</td><td class="center"><span class="check">★ Preferred</span></td></tr>
+    <tr><td>getByPlaceholder()</td><td>Alternative when placeholder is reliable</td><td class="center">backup</td></tr>
+  </table>
+
+  <div class="tipbox">
+    <div class="box-title">💡 Best Practice — Individual Locators</div>
+    Capture <b>each element separately</b> into its own constant instead of looping over a shared selector.
+    This is exactly the approach used inside <b class="key2">Page Object Model (POM)</b> classes.
+  </div>
+
+  <div class="code">
+<span class="kw">const</span> nameField&nbsp;&nbsp;&nbsp;&nbsp;= page.<span class="fn">getByLabel</span>(<span class="st">'Full Name'</span>);<br>
+<span class="kw">const</span> emailField&nbsp;&nbsp;&nbsp;= page.<span class="fn">getByLabel</span>(<span class="st">'Email'</span>);<br>
+<span class="kw">const</span> phoneField&nbsp;&nbsp;&nbsp;= page.<span class="fn">getByLabel</span>(<span class="st">'Phone'</span>);<br>
+<span class="kw">const</span> addressField = page.<span class="fn">getByLabel</span>(<span class="st">'Address'</span>);
+  </div>
+</div>
+
+<!-- ============ SECTION 5: INPUT FIELD VALIDATION ============ -->
+<div class="sheet">
+  <div class="section-title">
+    <div class="num">5</div>
+    <h2>Test 2 — Input Field Validation</h2>
+    <span class="squiggle"><svg viewBox="0 0 400 14"><path d="M0 8 q10 -8 20 0 t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0" stroke="#CFE0EE" stroke-width="3" fill="none"/></svg></span>
+  </div>
+
+  <p><b class="key">4-Step Checklist</b> for ANY input box (works for text, email, phone, textarea):</p>
+  <div class="flow">
+    <div class="step a">1️⃣ Visible<br>&amp; Enabled</div>
+    <div class="arrow">➜</div>
+    <div class="step b">2️⃣ Attribute<br>(maxlength etc.)</div>
+    <div class="arrow">➜</div>
+    <div class="step c">3️⃣ Enter<br>Value</div>
+    <div class="arrow">➜</div>
+    <div class="step a">4️⃣ Verify<br>Value Entered</div>
+  </div>
+
+  <div class="code">
+<span class="c1">// Full Name</span><br>
+<span class="kw">await</span> expect(nameField).<span class="fn">toBeVisible</span>();<br>
+<span class="kw">await</span> expect(nameField).<span class="fn">toBeEnabled</span>();<br>
+<span class="kw">await</span> expect(nameField).<span class="fn">toHaveAttribute</span>(<span class="st">'maxlength'</span>, <span class="st">'15'</span>);<br>
+<span class="kw">await</span> nameField.<span class="fn">fill</span>(<span class="st">'John Kennedy'</span>);<br>
+<span class="kw">await</span> expect(nameField).<span class="fn">toHaveValue</span>(<span class="st">'John Kennedy'</span>);<br><br>
+<span class="c1">// Address — multiline using \n</span><br>
+<span class="kw">await</span> addressField.<span class="fn">fill</span>(<span class="st">'123 XYZ Lane\nDelhi\nIndia'</span>);<br>
+<span class="kw">await</span> expect(addressField).<span class="fn">toHaveValue</span>(<span class="st">'123 XYZ Lane\nDelhi\nIndia'</span>);
+  </div>
+
+  <div class="stickyrow">
+    <div class="sticky">📝 <b>.fill()</b> = Playwright's <b>sendKeys()</b>. Returns a Promise → always <b>await</b> it. Auto-overwrites existing text.</div>
+    <div class="sticky blue">🔢 Numbers must still be passed as <b>strings</b>: fill("9999999999")</div>
+    <div class="sticky pink">↵ "\n" inside fill() string → creates a new line (multiline address/textarea)</div>
+  </div>
+</div>
+
+<!-- ============ SECTION 6: THE BIG EXAM TRICK ============ -->
+<div class="sheet">
+  <div class="section-title">
+    <div class="num">6</div>
+    <h2>🚨 THE Most Important Distinction</h2>
+    <span class="squiggle"><svg viewBox="0 0 400 14"><path d="M0 8 q10 -8 20 0 t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0" stroke="#CFE0EE" stroke-width="3" fill="none"/></svg></span>
+  </div>
+
+  <div class="trick">
+    <div class="box-title">🎯 toHaveValue vs toHaveText <span class="pill trick">Most Asked!</span></div>
+    <table>
+      <tr><th>Assertion</th><th>When to Use</th></tr>
+      <tr><td><b class="key">toHaveValue()</b></td><td>Value <b>YOU entered at runtime</b> (fill/type). Not baked into HTML. <span class="hl-green">Use for ALL input/textarea fields.</span></td></tr>
+      <tr><td><b class="key2">toHaveText()</b></td><td>Text <b>predefined/static</b> in the DOM (e.g. button's inner text, a heading)</td></tr>
+    </table>
+    <p style="margin:8px 0 0;"><b>Memory Trick 🧠:</b> "If <u>YOU typed it in</u> → <span class="hl">toHaveValue</span>.
+    If it was <u>already sitting in the HTML</u> → <span class="hl-blue">toHaveText</span>."</p>
+  </div>
+
+  <div class="grid2">
+    <div class="box">
+      <div class="box-title" style="color:var(--ink-coral);">&lt;input&gt; — has VALUE attribute</div>
+      <div class="code" style="font-size:12.5px;">
+&lt;input value=<span class="st">"Submit"</span>&gt;
+      </div>
+      <p style="margin:4px 0 0;">Value = runtime-fillable content → <b class="key">toHaveValue</b></p>
+    </div>
+    <div class="box">
+      <div class="box-title" style="color:var(--ink-teal);">&lt;button&gt; — has INNER TEXT</div>
+      <div class="code" style="font-size:12.5px;">
+&lt;button&gt;Submit&lt;/button&gt;
+      </div>
+      <p style="margin:4px 0 0;">Text between tags = static DOM content → <b class="key2">toHaveText</b></p>
+    </div>
+  </div>
+
+  <div class="remember">
+    <div class="box-title">⚠️ Common Mistake</div>
+    Using <b>toHaveText</b> to verify something YOU filled in — it will fail/mismatch, because the DOM
+    was never rebuilt with your dynamic input. <span class="hl">Always default to toHaveValue for form fields.</span>
+  </div>
+</div>
+
+<!-- ============ SECTION 7: RADIO BUTTONS ============ -->
+<div class="sheet">
+  <div class="section-title">
+    <div class="num">7</div>
+    <h2>Test 3 — Radio Button Validation</h2>
+    <span class="squiggle"><svg viewBox="0 0 400 14"><path d="M0 8 q10 -8 20 0 t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0" stroke="#CFE0EE" stroke-width="3" fill="none"/></svg></span>
+  </div>
+
+  <div class="code">
+<span class="kw">const</span> maleRadio&nbsp;&nbsp; = page.<span class="fn">getByLabel</span>(<span class="st">'Male'</span>, { exact: <span class="kw">true</span> });<br>
+<span class="kw">const</span> femaleRadio = page.<span class="fn">getByLabel</span>(<span class="st">'Female'</span>, { exact: <span class="kw">true</span> });<br><br>
+<span class="kw">await</span> expect(maleRadio).<span class="fn">toBeVisible</span>();<br>
+<span class="kw">await</span> expect(femaleRadio).<span class="fn">toBeVisible</span>();<br><br>
+<span class="kw">await</span> femaleRadio.<span class="fn">check</span>();<br><br>
+<span class="kw">await</span> expect(femaleRadio).<span class="fn">toBeChecked</span>();<br>
+<span class="kw">await</span> expect(maleRadio).<span class="kw">.not</span>.<span class="fn">toBeChecked</span>();
+  </div>
+
+  <div class="grid2">
+    <div class="trick">
+      <div class="box-title">🎯 exact: true</div>
+      Prevents partial-text collision — e.g. getByLabel('Male') could also match inside "Female"
+      as a substring. <span class="hl-pink">Always use exact:true when labels overlap.</span>
+    </div>
+    <div class="tipbox">
+      <div class="box-title">✅ .check() not .click()</div>
+      Semantically correct for radios/checkboxes even though .click() may also work.
+      Use the <b>action that matches the element's purpose</b>.
+    </div>
+  </div>
+
+  <table>
+    <tr><th>Element</th><th>.check()</th><th>.uncheck()</th><th>Multi-select?</th></tr>
+    <tr><td><b>Radio Button</b></td><td class="center check">✓</td><td class="center cross">✗ (auto-unchecks sibling)</td><td class="center cross">✗ one at a time</td></tr>
+    <tr><td><b>Checkbox</b></td><td class="center check">✓</td><td class="center check">✓</td><td class="center check">✓ multiple allowed</td></tr>
+  </table>
+
+  <div class="remember">
+    <div class="box-title">🌀 .not. — Universal Negation</div>
+    Works with <b>every</b> assertion → <span class="hl">.not.toBeChecked()</span>, .not.toBeVisible(), .not.toHaveValue() etc.
+  </div>
+</div>
+
+<!-- ============ SECTION 8: FORMULA / SHORTCUT ZONE ============ -->
+<div class="sheet">
+  <div class="section-title">
+    <div class="num">8</div>
+    <h2>⚡ Formula &amp; Shortcut Zone — Assertion Cheat Table</h2>
+    <span class="squiggle"><svg viewBox="0 0 400 14"><path d="M0 8 q10 -8 20 0 t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0" stroke="#CFE0EE" stroke-width="3" fill="none"/></svg></span>
+  </div>
+
+  <table>
+    <tr><th>Assertion</th><th>Purpose</th><th>Typical Target</th></tr>
+    <tr><td><b>toHaveURL(url)</b></td><td>Verify page URL</td><td>page</td></tr>
+    <tr><td><b>toBeVisible()</b></td><td>Element is visible on screen</td><td>any element</td></tr>
+    <tr><td><b>toBeEnabled()</b></td><td>Element accepts interaction</td><td>input/button</td></tr>
+    <tr><td><b>toHaveAttribute(name, value)</b></td><td>Verify an attribute (maxlength, type…)</td><td>input</td></tr>
+    <tr><td><span class="hl"><b>toHaveValue(value)</b></span></td><td>Verify runtime-entered value</td><td>input/textarea</td></tr>
+    <tr><td><span class="hl-blue"><b>toHaveText(text)</b></span></td><td>Verify static DOM text</td><td>button/heading/label</td></tr>
+    <tr><td><b>toBeChecked()</b></td><td>Radio/checkbox is selected</td><td>radio/checkbox</td></tr>
+    <tr><td><b>.not.&lt;assertion&gt;</b></td><td>Negates any assertion above</td><td>universal</td></tr>
+  </table>
+</div>
+
+<!-- ============ SECTION 9: CONCEPT MAP ============ -->
+<div class="sheet">
+  <div class="section-title">
+    <div class="num">9</div>
+    <h2>🗺️ Concept Map — Full Picture</h2>
+    <span class="squiggle"><svg viewBox="0 0 400 14"><path d="M0 8 q10 -8 20 0 t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0" stroke="#CFE0EE" stroke-width="3" fill="none"/></svg></span>
+  </div>
+
+  <div class="mindmap">
+    <svg viewBox="0 0 760 420" xmlns="http://www.w3.org/2000/svg" font-family="Kalam, cursive">
+      <!-- center -->
+      <ellipse cx="380" cy="210" rx="110" ry="44" fill="#1F3A5F"/>
+      <text x="380" y="205" text-anchor="middle" fill="#FBF7EC" font-size="18" font-weight="bold">Data Entry Form</text>
+      <text x="380" y="226" text-anchor="middle" fill="#FBF7EC" font-size="18" font-weight="bold">Validation Suite</text>
+
+      <!-- branch 1: page load -->
+      <path d="M300 190 C220 150 170 110 130 80" stroke="#D9591C" stroke-width="3" fill="none"/>
+      <ellipse cx="105" cy="65" rx="95" ry="38" fill="#FFF3A0" stroke="#D9591C" stroke-width="2.5"/>
+      <text x="105" y="60" text-anchor="middle" fill="#D9591C" font-size="15" font-weight="bold">Page Load</text>
+      <text x="105" y="78" text-anchor="middle" fill="#D9591C" font-size="12">toHaveURL + toBeVisible</text>
+
+      <!-- branch 2: locators -->
+      <path d="M280 220 C190 225 120 220 60 210" stroke="#0E7C7B" stroke-width="3" fill="none"/>
+      <ellipse cx="70" cy="210" rx="90" ry="38" fill="#DCEEFB" stroke="#0E7C7B" stroke-width="2.5"/>
+      <text x="70" y="206" text-anchor="middle" fill="#0E7C7B" font-size="15" font-weight="bold">Locators</text>
+      <text x="70" y="222" text-anchor="middle" fill="#0E7C7B" font-size="12">getByLabel (preferred)</text>
+
+      <!-- branch 3: input fields -->
+      <path d="M300 240 C220 280 170 320 125 350" stroke="#7B4B94" stroke-width="3" fill="none"/>
+      <ellipse cx="110" cy="365" rx="105" ry="42" fill="#FFE0EC" stroke="#7B4B94" stroke-width="2.5"/>
+      <text x="110" y="358" text-anchor="middle" fill="#7B4B94" font-size="15" font-weight="bold">Input Fields</text>
+      <text x="110" y="376" text-anchor="middle" fill="#7B4B94" font-size="12">fill() + toHaveValue()</text>
+
+      <!-- branch 4: value vs text -->
+      <path d="M460 190 C540 150 590 110 630 80" stroke="#C0392B" stroke-width="3" fill="none"/>
+      <ellipse cx="655" cy="65" rx="100" ry="42" fill="#FFF0EE" stroke="#C0392B" stroke-width="2.5"/>
+      <text x="655" y="55" text-anchor="middle" fill="#C0392B" font-size="14" font-weight="bold">Value vs Text</text>
+      <text x="655" y="72" text-anchor="middle" fill="#C0392B" font-size="11">dynamic → Value</text>
+      <text x="655" y="86" text-anchor="middle" fill="#C0392B" font-size="11">static → Text</text>
+
+      <!-- branch 5: radio/checkbox -->
+      <path d="M460 230 C550 250 610 270 660 300" stroke="#2E7D32" stroke-width="3" fill="none"/>
+      <ellipse cx="675" cy="320" rx="95" ry="42" fill="#D4F5D0" stroke="#2E7D32" stroke-width="2.5"/>
+      <text x="675" y="312" text-anchor="middle" fill="#2E7D32" font-size="14" font-weight="bold">Radio / Checkbox</text>
+      <text x="675" y="330" text-anchor="middle" fill="#2E7D32" font-size="11">check() / uncheck()</text>
+      <text x="675" y="345" text-anchor="middle" fill="#2E7D32" font-size="11">toBeChecked()</text>
+
+      <!-- branch 6: hooks/structure -->
+      <path d="M380 254 L380 330" stroke="#B8860B" stroke-width="3" fill="none"/>
+      <ellipse cx="380" cy="365" rx="100" ry="38" fill="#FFF3A0" stroke="#B8860B" stroke-width="2.5"/>
+      <text x="380" y="360" text-anchor="middle" fill="#B8860B" font-size="15" font-weight="bold">describe + beforeEach</text>
+      <text x="380" y="378" text-anchor="middle" fill="#B8860B" font-size="12">test suite structure</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ============ SECTION 10: EXAM TRICK BOXES ============ -->
+<div class="sheet">
+  <div class="section-title">
+    <div class="num">10</div>
+    <h2>🎯 Exam-Trick Boxes — Quick Fire</h2>
+    <span class="squiggle"><svg viewBox="0 0 400 14"><path d="M0 8 q10 -8 20 0 t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0" stroke="#CFE0EE" stroke-width="3" fill="none"/></svg></span>
+  </div>
+
+  <div class="grid2">
+    <div class="trick">
+      <div class="box-title">Q: Why beforeEach and not repeat code in every test?</div>
+      A: DRY principle — <b>beforeEach</b> runs automatically before EVERY test() in the describe block,
+      avoiding duplicate goto()/visibility checks.
+    </div>
+    <div class="trick">
+      <div class="box-title">Q: describe() inside test()? </div>
+      A: <span class="hl">Not allowed ✗</span>. describe = suite (outer), test = case (inner). Suites can
+      contain many tests, never the reverse.
+    </div>
+    <div class="trick">
+      <div class="box-title">Q: Can .check() replace .click() on a button?</div>
+      A: <span class="hl">No</span> — .check() is only for checkbox/radio inputs. Buttons/links still use .click().
+    </div>
+    <div class="trick">
+      <div class="box-title">Q: Selenium equivalent of .fill()?</div>
+      A: <b>sendKeys()</b>. Both simulate typing text into an input element.
+    </div>
+  </div>
+</div>
+
+<!-- ============ SECTION 11: QUICK REVISION ============ -->
+<div class="sheet">
+  <div class="section-title">
+    <div class="num">11</div>
+    <h2>📚 Quick Revision Summary</h2>
+    <span class="squiggle"><svg viewBox="0 0 400 14"><path d="M0 8 q10 -8 20 0 t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0" stroke="#CFE0EE" stroke-width="3" fill="none"/></svg></span>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <div class="box-title" style="color:var(--ink-green);">✅ Tests Completed Today</div>
+      <ul class="tick">
+        <li>Test 1: Page Load Validation</li>
+        <li>Test 2: Input Field Validation (name, email, phone, address)</li>
+        <li>Test 3: Radio Button Validation (gender)</li>
+      </ul>
+    </div>
+    <div>
+      <div class="box-title" style="color:var(--ink-red);">⏳ Still To Cover</div>
+      <ul class="cross-list">
+        <li>Checkbox validation (Days field)</li>
+        <li>Submit button validation</li>
+        <li>Empty-field submit → validation messages</li>
+        <li>Invalid email format rejection</li>
+        <li>Phone field rejecting alphabets</li>
+        <li>Name field rejecting &gt;15 characters</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SECTION 12: FINAL MEMORY SHEET ============ -->
+<div class="sheet" style="border-left-color:var(--ink-navy);">
+  <div class="section-title">
+    <div class="num">12</div>
+    <h2>🧾 Final One-Page Memory Sheet</h2>
+    <span class="squiggle"><svg viewBox="0 0 400 14"><path d="M0 8 q10 -8 20 0 t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0" stroke="#CFE0EE" stroke-width="3" fill="none"/></svg></span>
+  </div>
+
+  <div class="grid2">
+    <div class="box" style="border-color:var(--ink-coral);">
+      <div class="box-title" style="color:var(--ink-coral);">🧱 Structure</div>
+      test.describe(suite) → test.beforeEach(hook) → test(case)
+    </div>
+    <div class="box" style="border-color:var(--ink-teal);">
+      <div class="box-title" style="color:var(--ink-teal);">📍 Locator (forms)</div>
+      page.getByLabel('X', {exact:true})
+    </div>
+    <div class="box" style="border-color:var(--ink-purple);">
+      <div class="box-title" style="color:var(--ink-purple);">🖱 Actions</div>
+      .fill(text) → inputs &nbsp;|&nbsp; .check()/.uncheck() → radio/checkbox
+    </div>
+    <div class="box" style="border-color:var(--ink-green);">
+      <div class="box-title" style="color:var(--ink-green);">✅ Core Assertions</div>
+      toBeVisible • toBeEnabled • toHaveAttribute • toHaveValue • toHaveText • toBeChecked
+    </div>
+  </div>
+
+  <div class="remember" style="margin-top:6px;">
+    <div class="box-title">🏆 #1 Rule to Never Forget</div>
+    <p style="margin:0;font-size:19px;">
+      <b class="key">Typed it in? → toHaveValue()</b> &nbsp;|&nbsp; <b class="key2">Already in the DOM? → toHaveText()</b>
+      &nbsp;|&nbsp; Always double-check page load with <b>URL + element</b> together.
+    </p>
+  </div>
+
+  <p class="footer-tag">✎ End of Day 6 Notes — Next up: Checkboxes, Submit Button &amp; Negative Validations →</p>
+</div>
+
+</body>
+</html>
